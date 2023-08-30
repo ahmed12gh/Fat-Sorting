@@ -2,13 +2,11 @@
 
 mod drives;
 mod debug;
-mod sorting;
+pub mod sorting;
 mod main_gui;
-
 
 fn main() {
     main_gui::main() ;
-    sorting::sort_files()
 }
 
 

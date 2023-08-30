@@ -1,12 +1,13 @@
 //# In God We Trust 
 
+use std::path::Path;
 use std::process ;
 use std::{process::exit , path::PathBuf , fs} ;
 use super::debug; 
 use super::drives::find_drives ;
 use std::env::* ;
 
-pub fn sort_files(){ 
+pub fn sort_files() -> Vec<PathBuf>{ 
     // TODO : abiltiy to choose the drive 
     // check if we want to just run the program or check the actual order of files 
     match args().nth(1) { // either debug or no thing
@@ -32,8 +33,9 @@ pub fn sort_files(){
             // creating a buffer to store file paths
             let mut files: Vec<PathBuf> = Vec::new();
             //get the mounting point of first drive
-            let mount_path: &str = flash_drives[0].path.to_str().expect("fuck"); 
+            let mount_path = flash_drives[0].path.as_os_str();
             // get the contents of drive
+            println!("{:?}" , mount_path);
             let d = fs::read_dir(mount_path).expect("");
             // add them to the buffer 
             for f in d {
@@ -43,9 +45,13 @@ pub fn sort_files(){
             
             dbg!(&files);
             // just prefixes the files with a number to be sorted by 
-            sort(files);
+        //sort(files);
+            
             // sort according to ascii alpahbatical order by calling fatsort 
-            fatsort(&flash_drives[0].name);
+            
+        //fatsort(&flash_drives[0].name);
+
+            return files;
         }
 
         // uses fatfs to get the acutal order of files in the system and sfn (shot file name 8.3 nane)
@@ -55,7 +61,10 @@ pub fn sort_files(){
             }
             _ => (),
         },
+        
     }
+    return vec![PathBuf::new()];
+    
 }
 
 

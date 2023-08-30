@@ -35,11 +35,11 @@ pub fn find_drives() -> Option<Vec<Drive>> {
             let data :Vec<&str> = device.split_ascii_whitespace().collect();
 
             let name = String::from(data[0]) ;
-            let path = data[1] ;
+            let path = data[1].replace("\\040", " ") ;
             let format = data[2] ;
 
-            let d = Drive::new(name ,path ,format );
-
+            let d = Drive::new(name ,&path ,format );
+            println!("{d:?}");
             usb_drives.push(d);
         }
 

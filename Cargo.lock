@@ -138,8 +138,8 @@ dependencies = [
  "fscommon",
  "gtk4",
  "libadwaita",
- "rusb",
  "sudo",
+ "utils",
 ]
 
 [[package]]
@@ -903,6 +903,13 @@ name = "unicode-ident"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
+
+[[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "rusb",
+]
 
 [[package]]
 name = "vcpkg"
