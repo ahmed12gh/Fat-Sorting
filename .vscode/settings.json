@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+        "LICENSE": true,
+        "Cargo.lock": true,
+        ".gitignore": true,
+        "utils/Cargo.lock": true,
+        "utils/target": true,
+        "target": true,
+        "src/debug.rs": true
+    }
+}

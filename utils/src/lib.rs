@@ -1,19 +1,11 @@
-use rusb as usb; 
+#[allow(unused)]
+use rusb; 
 
+pub mod devices;
+pub use  devices::find_drives ;
 
-pub fn list_drives()   { 
-
-    // todo hotplug signal to recall find drives in src/
-
+pub fn hot_plug(){ 
 }
-
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-
-
 
 #[cfg(test)]
 mod tests {
@@ -21,7 +13,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+     
     }
 }

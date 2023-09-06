@@ -2,7 +2,6 @@ use fatfs::{FileSystem, FsOptions};
 use fscommon::BufStream;
 use std::process::exit;
 use sudo ;
-use crate::drives::* ;
 
 
 

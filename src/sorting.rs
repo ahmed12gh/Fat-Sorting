@@ -1,85 +1,74 @@
 //# In God We Trust 
 
-use std::path::Path;
 use std::process ;
 use std::{process::exit , path::PathBuf , fs} ;
-use super::debug; 
-use super::drives::find_drives ;
+
+// use super::debug; 
+use utils::find_drives; 
 use std::env::* ;
 
-pub fn sort_files() -> Vec<PathBuf>{ 
-    // TODO : abiltiy to choose the drive 
+//TODO : Take index argument 
+// TODO : abiltiy to choose the drive 
+/// takes an argument from the command line (used) debug or Nothing .This then is given to fatsort program to actually sort the files as of now `2023/9/6`
+pub fn sort_files() -> Option<Vec<PathBuf>>{ 
+    
     // check if we want to just run the program or check the actual order of files 
     match args().nth(1) { // either debug or no thing
         None => {
             // get a list of mounted drives from /proc/mounts
-            let flash_drives = match find_drives() {
-                Some(drive) => drive,
-                None => {
-                    println!("there is no usb devices connected");
-                    exit(0);
-                }
-            };
+            let flash_drives =  match find_drives(){
+                Some(c) => c , 
+                // TODO: just make it wait not quit ;
+                None => {println!("No device Connected") ; return None ; } 
+            } ;
 
-            // TODO: just make it wait not quit ;
-            match flash_drives.len() {
-                0 => {
-                    println!("No DEVICES connected");
-                    exit(0);
-                }
-                _ => (),
-            }
+            let flash = flash_drives[0].clone() ;
+                       
+            let mut files: Vec<PathBuf> = Vec::new();         // creating a Vector to store file paths
+            let mount_path = flash.path.as_os_str();  // get the mounting point of first drive
             
-            // creating a buffer to store file paths
-            let mut files: Vec<PathBuf> = Vec::new();
-            //get the mounting point of first drive
-            let mount_path = flash_drives[0].path.as_os_str();
-            // get the contents of drive
-            println!("{:?}" , mount_path);
-            let d = fs::read_dir(mount_path).expect("");
-            // add them to the buffer 
+            let d = fs::read_dir(mount_path).expect(&format!("could not open dir path {}" , mount_path.to_str().unwrap()) );  // get the contents of drive
+
             for f in d {
-                let f = f.expect("").path();
+                let f = f.expect("could not open file").path();
                 files.push(f);
             }
             
+            println!("{:?}" , mount_path); 
             dbg!(&files);
             // just prefixes the files with a number to be sorted by 
-        //sort(files);
-            
-            // sort according to ascii alpahbatical order by calling fatsort 
-            
-        //fatsort(&flash_drives[0].name);
 
-            return files;
+            /*sort(files);
+            // sort according to ascii alpahbatical order by calling fatsort 
+            fatsort(&flash_drives[0].name); */
+
+            return Some(files);
         }
 
         // uses fatfs to get the acutal order of files in the system and sfn (shot file name 8.3 nane)
-        Some(c) => match c.as_str() {
+        Some(arg) => match arg.as_str() {
             "debug" => {
-                debug::debug(); // deprecated after finishing the project 
+                // debug::debug(); // deprecated after finishing the project 
             }
             _ => (),
         },
         
     }
-    return vec![PathBuf::new()];
-    
+   None
 }
 
 
-
+#[allow(unused)]
+//TODO: sort according acustum order 
 fn sort(files: Vec<PathBuf>) {
-
-    //TODO: sort according acustum order 
-    let mut i = 1;
-    let mut j = 0;
-    while j < files.len() {
-        for p in files.clone() {
-            let f = p.file_name().expect("").to_str().expect("");
-
-            if f.as_bytes()[f.len() - 5] == format!("{}", i).as_bytes()[0] {
-                mv_rename(&p, &str_order(i as u32));
+let mut i = 1;
+let mut j = 0;
+while j < files.len() {
+    for p in files.clone() {
+        let f = p.file_name().expect("").to_str().expect("");
+        
+        if f.as_bytes()[f.len() - 5] == format!("{}", i).as_bytes()[0] {
+            mv_rename(&p, &str_order(i as u32));
                 break;
             }
         }
@@ -129,6 +118,7 @@ fn str_order(i: u32) -> String {
     }
 }
 
+#[allow(dead_code)]
 /// path should be the /dev/sd path not the mounted place \n
 /// also the filesystem has to be NOT mounted
 fn fatsort(path: &str) {
