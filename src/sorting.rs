@@ -8,13 +8,13 @@ use std::env::*;
 use utils::devices::drives::Drive;
 use utils::find_drives;
 
+const SPLIT_CHAR: char = '‐';
 
-const SPLIT_CHAR : char = '‐';
-
-//TODO : Take index argument
-// TODO : abiltiy to choose the drive
+//TODO : abiltiy to choose the drive
+//TODO : Take index of drive as an argument
 /// takes an argument from the command line (used) debug or Nothing .This then is given to fatsort program to actually sort the files as of now `2023/9/6`
 pub fn list_drive_files() -> Option<Vec<PathBuf>> {
+    let index_of_drive = 0 ; 
     // check if we want to just run the program or check the actual order of files
     match args().nth(1) {
         // either debug or no thing
@@ -28,7 +28,7 @@ pub fn list_drive_files() -> Option<Vec<PathBuf>> {
                     return None;
                 }
             };
-            let flash = flash_drives[0].clone();
+            let flash = flash_drives[index_of_drive].clone();
 
             let mut files: Vec<PathBuf> = Vec::new(); // creating a Vector to store file paths
             let mount_path = flash.path.as_os_str(); // get the mounting point of first drive
@@ -59,59 +59,58 @@ pub fn list_drive_files() -> Option<Vec<PathBuf>> {
 }
 
 pub fn sort_drive(files: &Vec<PathBuf>, drive: &Drive) {
-    let dev_path = drive.name.clone() ;
+    // e.g. :/dev/sda
+    let dev_path = drive.name.clone();
+    // rename files according to vec order and prefixes it with a custom name such as
+    // foo -> 0000-foo
     sort(&files);
     //sort according to ascii alpahbatical order by calling fatsort
     fatsort(&dev_path);
 }
 //TODO: sort according a custom order
 fn sort(files: &Vec<PathBuf>) {
-    for (i , file) in files.iter().enumerate() { 
-    
+    for (i, file) in files.iter().enumerate() {
         mv_rename(&file, i as u32);
     }
-
 }
 
 fn mv_rename(path: &PathBuf, order: u32) {
-    
     let filename = path.file_name().expect("").to_str().expect("");
     let parent = path.parent().expect("").to_str().expect("");
     let arg = format!("{parent}/{filename}");
 
-    let filename: Vec<&str> = filename.split(SPLIT_CHAR).collect() ;
-    let filename = if filename.len() == 2 { filename[1]} else { filename[0]};
-    let order = format!("{:0>4}" , order) ;
-    //TODO GET the order  part out df the file name ;
+    let filename: Vec<&str> = filename.split(SPLIT_CHAR).collect();
+    let filename = if filename.len() == 2 {
+        filename[1]
+    } else {
+        filename[0]
+    };
+    let order = format!("{:0>4}", order);
     let arg2 = format!("{parent}/{order}{SPLIT_CHAR}{filename}");
 
-    if arg != arg2 { 
+    if arg != arg2 {
         let _mv_out = process::Command::new("/bin/mv")
             .arg(arg)
             .arg(arg2)
             .output()
             .expect("msg");
-    
-        dbg!(_mv_out);
 
+        dbg!(_mv_out);
     }
 }
 
-#[allow(dead_code)]
 /// path should be the /dev/sd path not the mounted place \n
 /// also the filesystem has to be NOT mounted
 fn fatsort(dev_path: &str) {
-    // possible to change
-  
     //  udiskctl umount -b /dev/sd{a,b}{1,2}
-    // TODO : make sure that the sd name hasn't change ex from sda1 -> sdb1 or vice versa
+    if dev_path == "" { return; }
     dbg!(dev_path);
     let _mount = process::Command::new("udisksctl")
-    .arg("unmount")
-    .arg("-b")
-    .arg(dev_path)
-    .output()
-    .expect("error unmounting the drive ");
+        .arg("unmount")
+        .arg("-b")
+        .arg(dev_path)
+        .output()
+        .expect("error unmounting the drive ");
 
     // sudo(pkexec graphically) fatsort -a /dev/sd
     let out_put = process::Command::new("pkexec")
@@ -127,6 +126,6 @@ fn fatsort(dev_path: &str) {
         .arg(dev_path)
         .output()
         .expect("error mounting the drive ");
-    
+
     dbg!(out_put);
 }
