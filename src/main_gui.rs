@@ -41,7 +41,7 @@ fn build_ui(app: &Application) {
         .titlebar(&headerbar)
         .build();
 
-    // functionality for both the reset and sort button in the headerbar 
+    // functionality for both the reset and sort button in the header bar2 
     let sort_action = gtk::gio::SimpleAction::new("sort", None);
     let reset_action = gtk::gio::SimpleAction::new("reset", None);
 
